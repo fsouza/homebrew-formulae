@@ -1,0 +1,7 @@
+Personal homebrew formulae
+
+Most are forks.
+
+To use them, tap the repository:
+
+	% brew tap fsouza/formulae
