@@ -10,18 +10,31 @@ class V8Static < Formula
   url 'https://github.com/v8/v8/archive/3.21.17.tar.gz'
   sha1 '762dacc85a896e23a311eaed1e182f535677f4d6'
 
-  head 'https://github.com/v8/v8.git'
+  option 'with-readline', 'Use readline instead of libedit'
+
+  # not building on Snow Leopard:
+  # https://github.com/mxcl/homebrew/issues/21426
+  depends_on :macos => :lion
 
   # gyp currently depends on a full xcode install
   # https://code.google.com/p/gyp/issues/detail?id=292
   depends_on :xcode
+  depends_on 'readline' => :optional
+
+  resource 'gyp' do
+    url 'http://gyp.googlecode.com/svn/trunk', :revision => 1685
+    version '1685'
+  end
 
   def install
-    system 'make dependencies'
-    system 'make', 'native',
+    # Download gyp ourselves because running "make dependencies" pulls in ICU.
+    (buildpath/'build/gyp').install resource('gyp')
+
+    system "make", "native",
                    "-j#{ENV.make_jobs}",
                    "snapshot=on",
-                   "console=readline"
+                   "console=readline",
+                   "i18nsupport=off"
 
     prefix.install 'include'
     cd 'out/native' do
